@@ -1,6 +1,12 @@
 from playwright.sync_api import sync_playwright
 import time
 import json
+import sys
+import os
+login = os.environ["LOGIN"]
+
+password = os.environ["PASSWORD"]
+
 playwright = sync_playwright().start()
 browser = playwright.chromium.launch(headless=False)
 context = browser.new_context()
@@ -13,9 +19,15 @@ except:
 
 page = context.new_page()
 page.goto("https://centrum24.pl")
-time.sleep(10)
+page.wait_for_load_state("networkidle")
 
+page.locator("#input_nik").fill(login)
+page.locator("#okBtn2").click()
+page.locator("#ordinarypin").fill(password)
 
+main_money = page.locator("#left-column > div:nth-child(1) > md-accounts-details-component > md-accounts-section > div > div.md-accounts-details-parent > div.md-carousel > div > div > md-single-account > div > div > div.md-account-amount-default-box > div > span")
+secondary_money = page.locator("#left-column > div.md-widget-container-no-padding.top-border > md-goals > div > div.goals-container > div:nth-child(2) > div > div:nth-child(1) > div.goal-data > div.amount-container > div")
+time.sleep(100)
 with open("cookies.json", "w") as f:
     f.write(json.dumps(context.cookies()))
 browser.close()
